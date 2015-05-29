@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>Uber API with JQuery</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+  <h1>Using the Uber API with JQuery</h1>
+  <p id="location">Getting Current Location<p>
+  <button id="cars" disabled=true>Cars</button>
+  <p>Check out the console after you click the button to see the results!</p>
+  <script>
+    $(document).ready(function() {
+      // keep track of the location paragraph
+      var locationPar = document.getElementById("location");
+      // This is the ServerID used to Authorize your request BE CAREFUL WHERE YOU EXPOSE THIS ID!
+      var ServerID = "YOUR-SERVER-ID-GOES-HERE";
+      // default lat and long
+      var latitude = 37;
+      var longitude = 122;
+      // check if the browser supports geolocation and if it does run the position callback defined below else tell the user
+      if(navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(positionCallback);
+      } else {
+        locationPar.innerHTML = "Geolocation not supported on this browser. Using Latitude: <strong> 37 </strong>, Longitude: <strong> 122 </strong>";
+      }
+      // this is the callback that runs as soon as the browser gets the geolocation
+      function positionCallback(position) {
+        latitude = position.coords.latitude.toFixed(5);
+        longitude = position.coords.longitude.toFixed(5);
+        locationPar.innerHTML = "Latitude: <strong>" + latitude + "</strong>, Longitude: <strong>" + longitude + "</strong>";
+        $("#cars").prop("disabled", false);
+      }
+      // This is the ajax call that gets triggered when you click the cars button.
+      $("#cars").click(function() {
+        // ajax call using the jquery $.ajax method YOU MUST PUT YOUR OWN SERVER_AUTH TOKEN FOR THIS TO WORK
+        $.ajax({
+          url: "https://sandbox-api.uber.com/v1/products", 
+          method: "GET",
+          headers: { "Authorization": "Token " + ServerID },
+          data: { "latitude": latitude, "longitude": longitude },
+          success: function(data) { 
+            console.log(data);
+            console.log("Now that you have successfully sent an API request for products (cars) check out the API Docs to see how you can get more things!\nhttps://developer.uber.com/v1/tutorials/\nYou can get products, time estimates, and price estimates with your server authentication token.\nHave fun!");
+          }
+        })
+      })
+    })
+  </script>
+</body>
+</html>
